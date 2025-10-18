@@ -1,0 +1,21 @@
+{
+  "name": "ecommerce-platform",
+  "version": "1.0.0",
+  "description": "E-commerce platform with NestJS backend and React frontend",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "yarn install",
+    "dev:backend": "yarn workspace ecommerce-platform-backend start:dev",
+    "dev:frontend": "yarn workspace ecommerce-platform-frontend dev",
+    "build:backend": "yarn workspace ecommerce-platform-backend build",
+    "build:frontend": "yarn workspace ecommerce-platform-frontend build",
+    "start:backend": "yarn workspace ecommerce-platform-backend start:prod",
+    "start:frontend": "yarn workspace ecommerce-platform-frontend start",
+    "prisma:generate": "yarn workspace ecommerce-platform-backend prisma:generate",
+    "prisma:migrate": "yarn workspace ecommerce-platform-backend prisma:migrate"
+  }
+}
