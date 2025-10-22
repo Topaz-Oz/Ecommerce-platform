@@ -7,7 +7,9 @@ import {
   UpdateLogisticsOrderDto,
   CalculateShippingDto,
 } from './dto/logistics.dto';
-import { LogisticsStatus, OrderStatus } from '@prisma/client';
+import { LogisticsStatus, OrderStatus, ShipperStatus, Prisma } from '@prisma/client';
+import { calculateDistance, generateTrackingCode } from '@common/utils';
+import { ShipperService } from './shipper/shipper.service';
 
 @Injectable()
 export class LogisticsService {
@@ -170,22 +172,18 @@ export class LogisticsService {
     const trackingCode = this.generateTrackingCode();
 
     const logisticsOrder = await this.prisma.logisticsOrder.create({
-      data: {
-        orderId: dto.orderId,
-        logisticsPartnerId: dto.logisticsPartnerId,
-        trackingCode,
-        status: LogisticsStatus.CREATED,
-        estimatedDelivery: dto.estimatedDelivery,
-      },
-      include: {
-        order: {
-          include: {
-            orderItems: true,
-          },
-        },
-        logisticsPartner: true,
-      },
-    });
+  data: {
+    orderId: dto.orderId,
+    logisticsPartnerId: dto.logisticsPartnerId,
+    trackingCode,
+    status: LogisticsStatus.CREATED,
+    estimatedDelivery: dto.estimatedDelivery,
+  } as Prisma.LogisticsOrderUncheckedCreateInput,
+  include: {
+    order: { include: { orderItems: true } },
+    logisticsPartner: true,
+  },
+});
 
     // Update order status
     await this.prisma.order.update({

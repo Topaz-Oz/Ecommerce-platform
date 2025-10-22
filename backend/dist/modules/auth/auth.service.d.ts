@@ -15,16 +15,16 @@ export declare class AuthService {
         user: any;
     }>;
     register(data: RegisterDto): Promise<{
-        name: string;
         id: string;
         email: string;
-        avatar: string | null;
+        name: string;
         phone: string | null;
+        avatar: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         role: import(".prisma/client").$Enums.Role;
         isVerified: boolean;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     refreshToken(userId: string): Promise<{
         access_token: string;
@@ -33,9 +33,9 @@ export declare class AuthService {
         message: string;
     }>;
     validateJwt(userId: string): Promise<{
-        name: string;
         id: string;
         email: string;
+        name: string;
         role: import(".prisma/client").$Enums.Role;
         isVerified: boolean;
     }>;

@@ -14,6 +14,7 @@ export class LoginDto {
 }
 
 export class RegisterDto {
+  [x: string]: any;
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
   email: string;

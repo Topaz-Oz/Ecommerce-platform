@@ -6,255 +6,255 @@ export declare class ProductsController {
     createProduct(req: any, createProductDto: CreateProductDto): Promise<{
         seller: {
             id: string;
-            storeName: string;
             verified: boolean;
+            storeName: string;
         };
         enterprise: {
             id: string;
-            verified: boolean;
             companyName: string;
+            verified: boolean;
             officialBrand: boolean;
         };
         category: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         variants: {
             id: string;
             stock: number;
+            productId: string;
+            price: number;
             color: string | null;
             size: string | null;
-            price: number;
-            productId: string;
         }[];
     } & {
-        name: string;
-        description: string;
         id: string;
+        name: string;
+        active: boolean;
         createdAt: Date;
         updatedAt: Date;
+        description: string;
         categoryId: string;
         sellerId: string | null;
         enterpriseId: string | null;
         basePrice: number;
         stock: number;
-        active: boolean;
     }>;
     findAllProducts(skip?: number, take?: number, categoryId?: string, sellerId?: string): Promise<({
         seller: {
             id: string;
-            storeName: string;
             verified: boolean;
+            storeName: string;
         };
         enterprise: {
             id: string;
-            verified: boolean;
             companyName: string;
+            verified: boolean;
             officialBrand: boolean;
         };
         category: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         variants: {
             id: string;
             stock: number;
+            productId: string;
+            price: number;
             color: string | null;
             size: string | null;
-            price: number;
-            productId: string;
         }[];
     } & {
-        name: string;
-        description: string;
         id: string;
+        name: string;
+        active: boolean;
         createdAt: Date;
         updatedAt: Date;
+        description: string;
         categoryId: string;
         sellerId: string | null;
         enterpriseId: string | null;
         basePrice: number;
         stock: number;
-        active: boolean;
     })[]>;
     findOneProduct(id: string): Promise<{
         seller: {
             id: string;
-            storeName: string;
             verified: boolean;
+            storeName: string;
         };
         enterprise: {
             id: string;
-            verified: boolean;
             companyName: string;
+            verified: boolean;
             officialBrand: boolean;
-        };
-        category: {
-            name: string;
-            id: string;
-            parentId: string | null;
         };
         reviews: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
+            rating: number;
             createdAt: Date;
             userId: string;
-            rating: number;
+            productId: string;
             comment: string | null;
-            productId: string;
         })[];
-        variants: {
-            id: string;
-            stock: number;
-            color: string | null;
-            size: string | null;
-            price: number;
-            productId: string;
-        }[];
-    } & {
-        name: string;
-        description: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        categoryId: string;
-        sellerId: string | null;
-        enterpriseId: string | null;
-        basePrice: number;
-        stock: number;
-        active: boolean;
-    }>;
-    updateProduct(id: string, updateProductDto: UpdateProductDto, req: any): Promise<{
         category: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         variants: {
             id: string;
             stock: number;
+            productId: string;
+            price: number;
             color: string | null;
             size: string | null;
-            price: number;
-            productId: string;
         }[];
     } & {
-        name: string;
-        description: string;
         id: string;
+        name: string;
+        active: boolean;
         createdAt: Date;
         updatedAt: Date;
+        description: string;
         categoryId: string;
         sellerId: string | null;
         enterpriseId: string | null;
         basePrice: number;
         stock: number;
+    }>;
+    updateProduct(id: string, updateProductDto: UpdateProductDto, req: any): Promise<{
+        category: {
+            id: string;
+            name: string;
+            parentId: string | null;
+        };
+        variants: {
+            id: string;
+            stock: number;
+            productId: string;
+            price: number;
+            color: string | null;
+            size: string | null;
+        }[];
+    } & {
+        id: string;
+        name: string;
         active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        categoryId: string;
+        sellerId: string | null;
+        enterpriseId: string | null;
+        basePrice: number;
+        stock: number;
     }>;
     deleteProduct(id: string, req: any): Promise<{
         message: string;
     }>;
     createCategory(createCategoryDto: CreateCategoryDto, req: any): Promise<{
         parent: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         children: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         }[];
     } & {
-        name: string;
         id: string;
+        name: string;
         parentId: string | null;
     }>;
     findAllCategories(): Promise<({
         parent: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         children: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         }[];
     } & {
-        name: string;
         id: string;
+        name: string;
         parentId: string | null;
     })[]>;
     findOneCategory(id: string): Promise<{
         products: ({
             seller: {
                 id: string;
-                storeName: string;
                 verified: boolean;
+                storeName: string;
             };
             enterprise: {
                 id: string;
-                verified: boolean;
                 companyName: string;
+                verified: boolean;
                 officialBrand: boolean;
             };
             variants: {
                 id: string;
                 stock: number;
+                productId: string;
+                price: number;
                 color: string | null;
                 size: string | null;
-                price: number;
-                productId: string;
             }[];
         } & {
-            name: string;
-            description: string;
             id: string;
+            name: string;
+            active: boolean;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             categoryId: string;
             sellerId: string | null;
             enterpriseId: string | null;
             basePrice: number;
             stock: number;
-            active: boolean;
         })[];
         parent: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         children: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         }[];
     } & {
-        name: string;
         id: string;
+        name: string;
         parentId: string | null;
     }>;
     updateCategory(id: string, updateCategoryDto: UpdateCategoryDto, req: any): Promise<{
         parent: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         };
         children: {
-            name: string;
             id: string;
+            name: string;
             parentId: string | null;
         }[];
     } & {
-        name: string;
         id: string;
+        name: string;
         parentId: string | null;
     }>;
     deleteCategory(id: string, req: any): Promise<{
@@ -262,28 +262,28 @@ export declare class ProductsController {
     }>;
     createReview(productId: string, createReviewDto: CreateReviewDto, req: any): Promise<{
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number;
         createdAt: Date;
         userId: string;
-        rating: number;
-        comment: string | null;
         productId: string;
+        comment: string | null;
     }>;
     getProductReviews(productId: string): Promise<({
         user: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number;
         createdAt: Date;
         userId: string;
-        rating: number;
-        comment: string | null;
         productId: string;
+        comment: string | null;
     })[]>;
 }

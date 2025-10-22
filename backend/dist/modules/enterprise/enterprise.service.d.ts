@@ -13,26 +13,26 @@ export declare class EnterpriseService {
     }): Promise<{
         enterprise: {
             id: string;
-            userId: string;
-            verified: boolean;
             rating: number | null;
             companyName: string;
             taxCode: string | null;
+            verified: boolean;
             officialBrand: boolean;
+            userId: string;
         };
     } & {
-        name: string;
+        id: string;
         email: string;
         password: string;
-        role: import(".prisma/client").$Enums.Role;
-        id: string;
-        avatar: string | null;
+        name: string;
         phone: string | null;
+        avatar: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
         isVerified: boolean;
         verificationToken: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     update(userId: string, data: {
         name?: string;
@@ -43,136 +43,136 @@ export declare class EnterpriseService {
     }): Promise<{
         enterprise: {
             id: string;
-            userId: string;
-            verified: boolean;
             rating: number | null;
             companyName: string;
             taxCode: string | null;
+            verified: boolean;
             officialBrand: boolean;
+            userId: string;
         };
     } & {
-        name: string;
+        id: string;
         email: string;
         password: string;
-        role: import(".prisma/client").$Enums.Role;
-        id: string;
-        avatar: string | null;
+        name: string;
         phone: string | null;
+        avatar: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        role: import(".prisma/client").$Enums.Role;
         isVerified: boolean;
         verificationToken: string | null;
         isActive: boolean;
-        createdAt: Date;
-        updatedAt: Date;
     }>;
     findById(id: string): Promise<{
-        user: {
-            name: string;
-            email: string;
-            password: string;
-            role: import(".prisma/client").$Enums.Role;
-            id: string;
-            avatar: string | null;
-            phone: string | null;
-            isVerified: boolean;
-            verificationToken: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-        };
         products: {
-            name: string;
-            description: string;
             id: string;
+            name: string;
+            active: boolean;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             categoryId: string;
             sellerId: string | null;
             enterpriseId: string | null;
             basePrice: number;
             stock: number;
-            active: boolean;
         }[];
+        user: {
+            id: string;
+            email: string;
+            password: string;
+            name: string;
+            phone: string | null;
+            avatar: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: import(".prisma/client").$Enums.Role;
+            isVerified: boolean;
+            verificationToken: string | null;
+            isActive: boolean;
+        };
     } & {
         id: string;
-        userId: string;
-        verified: boolean;
         rating: number | null;
         companyName: string;
         taxCode: string | null;
+        verified: boolean;
         officialBrand: boolean;
+        userId: string;
     }>;
     findByUserId(userId: string): Promise<{
-        user: {
-            name: string;
-            email: string;
-            password: string;
-            role: import(".prisma/client").$Enums.Role;
-            id: string;
-            avatar: string | null;
-            phone: string | null;
-            isVerified: boolean;
-            verificationToken: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-        };
         products: {
-            name: string;
-            description: string;
             id: string;
+            name: string;
+            active: boolean;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             categoryId: string;
             sellerId: string | null;
             enterpriseId: string | null;
             basePrice: number;
             stock: number;
-            active: boolean;
         }[];
+        user: {
+            id: string;
+            email: string;
+            password: string;
+            name: string;
+            phone: string | null;
+            avatar: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: import(".prisma/client").$Enums.Role;
+            isVerified: boolean;
+            verificationToken: string | null;
+            isActive: boolean;
+        };
     } & {
         id: string;
-        userId: string;
-        verified: boolean;
         rating: number | null;
         companyName: string;
         taxCode: string | null;
+        verified: boolean;
         officialBrand: boolean;
+        userId: string;
     }>;
     findAll(): Promise<({
-        user: {
-            name: string;
-            email: string;
-            password: string;
-            role: import(".prisma/client").$Enums.Role;
-            id: string;
-            avatar: string | null;
-            phone: string | null;
-            isVerified: boolean;
-            verificationToken: string | null;
-            isActive: boolean;
-            createdAt: Date;
-            updatedAt: Date;
-        };
         products: {
-            name: string;
-            description: string;
             id: string;
+            name: string;
+            active: boolean;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             categoryId: string;
             sellerId: string | null;
             enterpriseId: string | null;
             basePrice: number;
             stock: number;
-            active: boolean;
         }[];
+        user: {
+            id: string;
+            email: string;
+            password: string;
+            name: string;
+            phone: string | null;
+            avatar: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            role: import(".prisma/client").$Enums.Role;
+            isVerified: boolean;
+            verificationToken: string | null;
+            isActive: boolean;
+        };
     } & {
         id: string;
-        userId: string;
-        verified: boolean;
         rating: number | null;
         companyName: string;
         taxCode: string | null;
+        verified: boolean;
         officialBrand: boolean;
+        userId: string;
     })[]>;
 }

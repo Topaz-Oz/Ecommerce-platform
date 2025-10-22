@@ -6,68 +6,68 @@ export declare class OrdersService {
     create(userId: string, dto: CreateOrderDto): Promise<{
         orderItems: {
             id: string;
-            price: number;
+            orderId: string;
             productId: string;
             variantId: string | null;
             quantity: number;
-            orderId: string;
+            price: number;
         }[];
     } & {
         id: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         userId: string;
-        voucherId: string | null;
-        status: import(".prisma/client").$Enums.OrderStatus;
         totalAmount: number;
         paymentId: string | null;
         shippingId: string | null;
+        voucherId: string | null;
     }>;
     findAll(userId: string, role: string): Promise<({
         orderItems: {
             id: string;
-            price: number;
+            orderId: string;
             productId: string;
             variantId: string | null;
             quantity: number;
-            orderId: string;
+            price: number;
         }[];
     } & {
         id: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         userId: string;
-        voucherId: string | null;
-        status: import(".prisma/client").$Enums.OrderStatus;
         totalAmount: number;
         paymentId: string | null;
         shippingId: string | null;
+        voucherId: string | null;
     })[]>;
     findOne(id: string, userId: string, role: string): Promise<{
         orderItems: {
             id: string;
-            price: number;
+            orderId: string;
             productId: string;
             variantId: string | null;
             quantity: number;
-            orderId: string;
+            price: number;
         }[];
     } & {
         id: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         userId: string;
-        voucherId: string | null;
-        status: import(".prisma/client").$Enums.OrderStatus;
         totalAmount: number;
         paymentId: string | null;
         shippingId: string | null;
+        voucherId: string | null;
     }>;
     updateStatus(id: string, dto: UpdateOrderStatusDto, userId: string, role: string): Promise<{
         id: string;
+        status: import(".prisma/client").$Enums.OrderStatus;
         createdAt: Date;
         userId: string;
-        voucherId: string | null;
-        status: import(".prisma/client").$Enums.OrderStatus;
         totalAmount: number;
         paymentId: string | null;
         shippingId: string | null;
+        voucherId: string | null;
     }>;
 }

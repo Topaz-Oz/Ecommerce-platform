@@ -5,82 +5,82 @@ export declare class SellersController {
     constructor(sellersService: SellersService);
     create(req: any, createSellerDto: CreateSellerDto): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
-            avatar: string;
+            email: string;
+            name: string;
             phone: string;
+            avatar: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     findAll(): Promise<({
-        user: {
-            name: string;
-            email: string;
-            id: string;
-        };
         products: {
-            name: string;
             id: string;
+            name: string;
             basePrice: number;
             stock: number;
         }[];
+        user: {
+            id: string;
+            email: string;
+            name: string;
+        };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     })[]>;
     findOne(id: string): Promise<{
-        user: {
-            name: string;
-            email: string;
-            id: string;
-        };
         products: {
-            name: string;
             id: string;
+            name: string;
             basePrice: number;
             stock: number;
         }[];
+        user: {
+            id: string;
+            email: string;
+            name: string;
+        };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     update(id: string, updateSellerDto: UpdateSellerDto, req: any): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     verifyStatus(id: string, verified: boolean, req: any): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     remove(id: string, req: any): Promise<{
         message: string;

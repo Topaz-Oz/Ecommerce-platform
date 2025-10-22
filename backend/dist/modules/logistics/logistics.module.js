@@ -10,16 +10,17 @@ exports.LogisticsModule = void 0;
 const common_1 = require("@nestjs/common");
 const logistics_service_1 = require("./logistics.service");
 const logistics_controller_1 = require("./logistics.controller");
+const shipper_module_1 = require("./shipper/shipper.module");
 const prisma_module_1 = require("../prisma/prisma.module");
 let LogisticsModule = class LogisticsModule {
 };
 exports.LogisticsModule = LogisticsModule;
 exports.LogisticsModule = LogisticsModule = __decorate([
     (0, common_1.Module)({
-        imports: [prisma_module_1.PrismaModule],
+        imports: [prisma_module_1.PrismaModule, shipper_module_1.ShipperModule],
         controllers: [logistics_controller_1.LogisticsController],
         providers: [logistics_service_1.LogisticsService],
-        exports: [logistics_service_1.LogisticsService],
+        exports: [logistics_service_1.LogisticsService, shipper_module_1.ShipperModule],
     })
 ], LogisticsModule);
 //# sourceMappingURL=logistics.module.js.map

@@ -156,11 +156,7 @@ let LogisticsService = class LogisticsService {
                 estimatedDelivery: dto.estimatedDelivery,
             },
             include: {
-                order: {
-                    include: {
-                        orderItems: true,
-                    },
-                },
+                order: { include: { orderItems: true } },
                 logisticsPartner: true,
             },
         });

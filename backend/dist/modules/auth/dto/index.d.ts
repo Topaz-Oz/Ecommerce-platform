@@ -4,6 +4,7 @@ export declare class LoginDto {
     password: string;
 }
 export declare class RegisterDto {
+    [x: string]: any;
     email: string;
     password: string;
     name: string;

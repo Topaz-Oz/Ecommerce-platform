@@ -5,101 +5,101 @@ export declare class SellersService {
     constructor(prisma: PrismaService);
     create(userId: string, createSellerDto: CreateSellerDto): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
-            avatar: string;
+            email: string;
+            name: string;
             phone: string;
+            avatar: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     findAll(): Promise<({
-        user: {
-            name: string;
-            email: string;
-            id: string;
-        };
         products: {
-            name: string;
             id: string;
+            name: string;
             basePrice: number;
             stock: number;
         }[];
+        user: {
+            id: string;
+            email: string;
+            name: string;
+        };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     })[]>;
     findOne(id: string): Promise<{
-        user: {
-            name: string;
-            email: string;
-            id: string;
-        };
         products: {
-            name: string;
             id: string;
+            name: string;
             basePrice: number;
             stock: number;
         }[];
+        user: {
+            id: string;
+            email: string;
+            name: string;
+        };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     findByUserId(userId: string): Promise<{
-        user: {
-            name: string;
-            email: string;
-            id: string;
-        };
         products: {
-            name: string;
             id: string;
+            name: string;
             basePrice: number;
             stock: number;
         }[];
+        user: {
+            id: string;
+            email: string;
+            name: string;
+        };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     update(id: string, updateSellerDto: UpdateSellerDto): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     updateVerificationStatus(id: string, verified: boolean): Promise<{
         user: {
-            name: string;
-            email: string;
             id: string;
+            email: string;
+            name: string;
         };
     } & {
         id: string;
+        rating: number | null;
+        verified: boolean;
         userId: string;
         storeName: string;
-        verified: boolean;
-        rating: number | null;
     }>;
     delete(id: string): Promise<{
         message: string;
