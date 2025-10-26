@@ -47,6 +47,7 @@ export class PaymentsService {
         orderId: dto.orderId,
         method: dto.method,
         status: PaymentStatus.PENDING,
+        amount: 123456,
       },
     });
 

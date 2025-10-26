@@ -32,6 +32,8 @@ export class CreateVoucherDto {
   @IsOptional()
   @IsNumber()
   usageLimit?: number;
+  title: string;
+  scope: any;
 }
 
 export class UpdateVoucherDto {

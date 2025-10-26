@@ -55,8 +55,6 @@ export class AuthService {
               select: {
                 id: true,
                 name: true,
-                basePrice: true,
-                stock: true,
               },
             },
           },
@@ -72,8 +70,6 @@ export class AuthService {
               select: {
                 id: true,
                 name: true,
-                basePrice: true,
-                stock: true,
               },
             },
           },

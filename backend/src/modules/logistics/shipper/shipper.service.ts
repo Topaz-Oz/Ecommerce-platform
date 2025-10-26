@@ -1,35 +1,85 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '@modules/prisma/prisma.service';
-import { LogisticsStatus, ShipperStatus, Prisma } from '@prisma/client';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service'; // 👈 Sửa đường dẫn nếu cần
+import { Role, ShipperStatus, Prisma, LogisticsStatus } from '@prisma/client'; // 👈 Thêm Role
 import * as bcrypt from 'bcrypt';
-import { CreateShipperDto, UpdateShipperDto, UpdateLocationDto } from './shipper.dto';
-import { calculateDistance, validateLocation } from '@common/utils';
+import {
+  CreateShipperDto,
+  UpdateShipperDto,
+  UpdateLocationDto,
+} from './shipper.dto';
+// import { calculateDistance, validateLocation } from '@common/utils'; // (Giữ lại nếu bạn có)
 
 @Injectable()
 export class ShipperService {
   constructor(private prisma: PrismaService) {}
 
-  async create(logisticsPartnerId: string, createShipperDto: CreateShipperDto) {
-    const existingShipper = await this.prisma.shipper.findUnique({
-      where: { email: createShipperDto.email },
+  /**
+   * 🚀 LOGIC ĐÃ SỬA:
+   * Tạo một User (vai trò SHIPPER) và một Shipper (liên kết) cùng lúc.
+   */
+  async create(
+    logisticsPartnerId: string,
+    createShipperDto: CreateShipperDto,
+  ) {
+    // 1. Tách DTO: Lấy thông tin cho User và thông tin cho Shipper
+    const {
+      email,
+      password,
+      name,
+      phone,
+      avatar,
+      deliveryRange, //
+    } = createShipperDto;
+
+    // 2. Kiểm tra email trên model User, KHÔNG phải Shipper
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
     });
 
-    if (existingShipper) {
-      throw new ConflictException('Email already exists');
+    if (existingUser) {
+      throw new ConflictException('Email already exists in User table');
     }
 
-    const hashedPassword = await bcrypt.hash(createShipperDto.password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    return this.prisma.shipper.create({
-      data: {
-        ...createShipperDto,
-        password: hashedPassword,
-        logisticsPartnerId,
-      },
+    // 3. Dùng transaction để đảm bảo tạo User và Shipper cùng lúc
+    return this.prisma.$transaction(async (tx) => {
+      // 3a. Tạo User
+      const user = await tx.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          phone,
+          avatar, // (Nếu có)
+          role: Role.SHIPPER, // 👈 Gán vai trò
+        },
+      });
+
+      // 3b. Tạo Shipper và liên kết với User vừa tạo
+      const shipper = await tx.shipper.create({
+        data: {
+          userId: user.id, // 👈 Liên kết qua userId
+          logisticsPartnerId,
+          status: ShipperStatus.AVAILABLE,
+          deliveryRange: deliveryRange || 5.0,
+          // ❌ Xóa: ...createShipperDto, password
+        },
+      });
+
+      return { ...shipper, user }; // Trả về shipper và thông tin user
     });
   }
 
   async update(id: string, updateShipperDto: UpdateShipperDto) {
+    // ❗️ Lưu ý: updateShipperDto chỉ nên chứa các trường
+    // của Shipper (status, deliveryRange, active),
+    // KHÔNG chứa (email, name...).
     await this.findOne(id);
     return this.prisma.shipper.update({
       where: { id },
@@ -42,7 +92,7 @@ export class ShipperService {
     return this.prisma.shipper.update({
       where: { id },
       data: {
-        currentLocation: { ...updateLocationDto }, 
+        currentLocation: { ...updateLocationDto },
       },
     });
   }
@@ -51,6 +101,7 @@ export class ShipperService {
     return this.prisma.shipper.findMany({
       where: { logisticsPartnerId },
       include: {
+        user: true, // 👈 Nên include user để lấy tên, email...
         assignedOrders: {
           include: {
             order: true,
@@ -64,6 +115,7 @@ export class ShipperService {
     const shipper = await this.prisma.shipper.findUnique({
       where: { id },
       include: {
+        user: true, // 👈 Nên include user
         assignedOrders: {
           include: {
             order: true,
@@ -79,37 +131,54 @@ export class ShipperService {
     return shipper;
   }
 
+  /**
+   * 🚀 LOGIC ĐÃ SỬA:
+   * Tìm Shipper bằng email của User liên quan.
+   */
   async findByEmail(email: string) {
-    return this.prisma.shipper.findUnique({
-      where: { email },
+    return this.prisma.shipper.findFirst({
+      where: {
+        user: {
+          // 👈 Lọc lồng vào model User
+          email: email,
+        },
+      },
+      include: {
+        user: true,
+      },
     });
   }
 
   async assignOrder(orderId: string, shipperId: string) {
-    const [order, shipper] = await Promise.all([
+    const [logisticsOrder, shipper] = await Promise.all([
       this.prisma.logisticsOrder.findUnique({ where: { id: orderId } }),
-      this.findOne(shipperId),
+      this.findOne(shipperId), // 👈 Hàm findOne đã lấy status
     ]);
 
-    if (!order) {
+    if (!logisticsOrder) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
-    //import { ShipperStatus } from '@prisma/client';
+    if (shipper.status !== ShipperStatus.AVAILABLE) {
+      throw new ConflictException('Shipper is not available');
+    }
 
-if (shipper.status !== ShipperStatus.AVAILABLE) {
-  throw new ConflictException('Shipper is not available');
-}
-
-
-    return this.prisma.logisticsOrder.update({
+    // Cập nhật trạng thái Shipper và Order
+    const updatedOrder = await this.prisma.logisticsOrder.update({
       where: { id: orderId },
       data: {
         shipperId,
-        status: 'PICKED_UP',
+        status: LogisticsStatus.PICKED_UP, // 👈 Dùng Enum
         pickupTime: new Date(),
       },
     });
+
+    await this.prisma.shipper.update({
+      where: { id: shipperId },
+      data: { status: ShipperStatus.BUSY },
+    });
+
+    return updatedOrder;
   }
 
   async completeDelivery(orderId: string) {
@@ -120,13 +189,25 @@ if (shipper.status !== ShipperStatus.AVAILABLE) {
     if (!order) {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
+    if (!order.shipperId) {
+      throw new BadRequestException('Order has no shipper assigned');
+    }
 
-    return this.prisma.logisticsOrder.update({
+    // Cập nhật trạng thái Order và Shipper
+    const updatedOrder = await this.prisma.logisticsOrder.update({
       where: { id: orderId },
       data: {
-        status: 'DELIVERED',
+        status: LogisticsStatus.DELIVERED, // 👈 Dùng Enum
         deliveredTime: new Date(),
       },
     });
+
+    // Set shipper về AVAILABLE
+    await this.prisma.shipper.update({
+      where: { id: order.shipperId },
+      data: { status: ShipperStatus.AVAILABLE },
+    });
+
+    return updatedOrder;
   }
 }

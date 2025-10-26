@@ -2,18 +2,26 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Patch,
   Param,
   Delete,
   UseGuards,
   Request,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiConsumes } from '@nestjs/swagger';
 import { SellersService } from './sellers.service';
 import { CreateSellerDto, UpdateSellerDto } from './dto/sellers.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileUploadInterceptor } from '../../common/interceptors';
 
 @ApiTags('sellers')
 @Controller('sellers')
@@ -83,5 +91,68 @@ export class SellersController {
       throw new Error('Unauthorized');
     }
     return this.sellersService.delete(id);
+  }
+
+  // File Upload Endpoints
+  @Post(':id/logo')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  uploadLogo(
+    @Param('id') id: string,
+    @UploadedFile(new ParseFilePipe())
+    file: Express.Multer.File,
+  ) {
+    return this.sellersService.uploadStoreLogo(file, id);
+  }
+
+  @Put(':id/logo')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  updateLogo(
+    @Param('id') id: string,
+    @UploadedFile(new ParseFilePipe())
+    file: Express.Multer.File,
+  ) {
+    return this.sellersService.updateStoreLogo(file, id);
+  }
+
+  @Delete(':id/logo')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  deleteLogo(@Param('id') id: string) {
+    return this.sellersService.deleteStoreLogo(id);
+  }
+
+  @Post(':id/documents/:type')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  uploadDocument(
+    @Param('id') id: string,
+    @Param('type') type: 'business' | 'identity' | 'address',
+    @UploadedFile(new ParseFilePipe())
+    file: Express.Multer.File,
+  ) {
+    return this.sellersService.uploadVerificationDocument(file, id, type);
+  }
+
+  @Delete(':id/documents/:type')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.SELLER)
+  @ApiBearerAuth()
+  deleteDocument(
+    @Param('id') id: string,
+    @Param('type') type: 'business' | 'identity' | 'address',
+  ) {
+    return this.sellersService.deleteVerificationDocument(id, type);
   }
 }

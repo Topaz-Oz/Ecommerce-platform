@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { EnterpriseController } from './enterprise.controller';
 import { EnterpriseService } from './enterprise.service';
-//import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { FileUploadService } from '../../common/services';
 
 @Module({
+  imports: [PrismaModule, CloudinaryModule],
   controllers: [EnterpriseController],
-  providers: [EnterpriseService],
+  providers: [EnterpriseService, FileUploadService],
   exports: [EnterpriseService],
-  //imports: [PrismaModule],
 })
 export class EnterpriseModule {}

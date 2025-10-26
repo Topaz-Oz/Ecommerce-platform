@@ -33,7 +33,7 @@ export class PrismaService
     this.logger.log('✅ Prisma connected');
 
     // 🧠 Event logging an toàn type
-    this.$on<any>('query', (event: Prisma.QueryEvent | Prisma.LogEvent) => {
+    (this as any).$on('query', (event: Prisma.QueryEvent) => {
       if ('query' in event) {
         this.logger.debug(`Query: ${event.query}`);
         this.logger.debug(`Params: ${event.params}`);
@@ -41,10 +41,10 @@ export class PrismaService
       }
     });
 
-    this.$on<any>('error', (event: Prisma.LogEvent) =>
+    (this as any).$on('error', (event: Prisma.LogEvent) =>
       this.logger.error(event.message),
     );
-    this.$on<any>('warn', (event: Prisma.LogEvent) =>
+    (this as any).$on('warn', (event: Prisma.LogEvent) =>
       this.logger.warn(event.message),
     );
 

@@ -188,6 +188,8 @@ export class AdminService {
   async createVoucher(dto: CreateVoucherDto) {
     return this.prisma.voucher.create({
       data: {
+        title: dto.title ?? dto.code,
+        scope: dto.scope,
         code: dto.code,
         discountType: dto.discountType,
         discountValue: dto.discountValue,

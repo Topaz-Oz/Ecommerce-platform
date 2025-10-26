@@ -1,6 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsOptional, IsBoolean, IsNumber, IsObject } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsEnum,
+  MinLength,
+} from 'class-validator';
+import { ShipperStatus } from '@prisma/client';
 
+/**
+ * 🚀 DTO MỚI: Dùng để tạo User (role: SHIPPER) và Shipper cùng lúc
+ */
 export class CreateShipperDto {
   @ApiProperty()
   @IsEmail()
@@ -8,50 +20,53 @@ export class CreateShipperDto {
 
   @ApiProperty()
   @IsString()
+  @MinLength(6)
   password: string;
 
   @ApiProperty()
   @IsString()
   name: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   phone?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'URL ảnh avatar' })
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @ApiPropertyOptional({ description: 'Phạm vi giao hàng (km)', default: 5.0 })
+  @IsOptional()
+  @IsNumber()
+  deliveryRange?: number;
 }
 
+/**
+ * 🚀 DTO MỚI: Chỉ cập nhật các trường thuộc model Shipper
+ * (Việc cập nhật name, phone, avatar... nên thuộc về UserService)
+ */
 export class UpdateShipperDto {
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  avatar?: string;
-
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Kích hoạt shipper?' })
   @IsOptional()
   @IsBoolean()
   active?: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ enum: ShipperStatus, description: 'Trạng thái shipper' })
   @IsOptional()
-  @IsBoolean()
-  available?: boolean;
+  @IsEnum(ShipperStatus)
+  status?: ShipperStatus;
+
+  @ApiPropertyOptional({ description: 'Phạm vi giao hàng (km)' })
+  @IsOptional()
+  @IsNumber()
+  deliveryRange?: number;
 }
 
+/**
+ * DTO này vẫn chính xác
+ */
 export class UpdateLocationDto {
   @ApiProperty()
   @IsNumber()
@@ -62,6 +77,9 @@ export class UpdateLocationDto {
   longitude: number;
 }
 
+/**
+ * DTO này vẫn chính xác
+ */
 export class AssignOrderDto {
   @ApiProperty()
   @IsString()

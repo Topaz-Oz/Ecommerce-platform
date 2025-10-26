@@ -1,10 +1,15 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSellerDto, UpdateSellerDto } from './dto/sellers.dto';
+import { FileUploadService } from '../../common/services/file-upload.service';
+import { CLOUDINARY } from '../cloudinary/cloudinary.constants';
 
 @Injectable()
 export class SellersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private fileUploadService: FileUploadService
+  ) {}
 
   async create(userId: string, createSellerDto: CreateSellerDto) {
     // Check if user already has a seller profile
@@ -49,8 +54,12 @@ export class SellersService {
           select: {
             id: true,
             name: true,
-            basePrice: true,
-            stock: true,
+            variants: { 
+      select: {
+        price: true,
+        stock: true,
+      }
+    }
           },
         },
       },
@@ -72,8 +81,12 @@ export class SellersService {
           select: {
             id: true,
             name: true,
-            basePrice: true,
-            stock: true,
+            variants: { // 👈 Sửa thành
+      select: {
+        price: true,
+        stock: true,
+      }
+    }
           },
         },
       },
@@ -101,8 +114,12 @@ export class SellersService {
           select: {
             id: true,
             name: true,
-            basePrice: true,
-            stock: true,
+            variants: {
+              select: {
+                price: true,
+                stock: true,
+              },
+            },
           },
         },
       },
@@ -177,6 +194,97 @@ export class SellersService {
       where: { id },
     });
 
+    // Delete any associated files
+    await this.deleteStoreLogo(id);
+    await this.deleteVerificationDocuments(id);
+
     return { message: 'Seller profile deleted successfully' };
+  }
+
+  async uploadStoreLogo(file: Express.Multer.File, sellerId: string) {
+    const publicId = `${CLOUDINARY.FOLDER.SELLERS}/${sellerId}/logo`;
+    const result = await this.fileUploadService.safeUploadFile(file, publicId, {
+      ...CLOUDINARY.TRANSFORMATION.PROFILE,
+    });
+
+    // Update seller profile with logo URL
+    await this.prisma.seller.update({
+      where: { id: sellerId },
+      data: { logoUrl: result.secure_url },
+    });
+
+    return result;
+  }
+
+  async updateStoreLogo(file: Express.Multer.File, sellerId: string) {
+    const publicId = `${CLOUDINARY.FOLDER.SELLERS}/${sellerId}/logo`;
+    const result = await this.fileUploadService.safeReplaceFile(file, publicId, {
+      ...CLOUDINARY.TRANSFORMATION.PROFILE,
+    });
+
+    // Update seller profile with new logo URL
+    await this.prisma.seller.update({
+      where: { id: sellerId },
+      data: { logoUrl: result.secure_url },
+    });
+
+    return result;
+  }
+
+  async deleteStoreLogo(sellerId: string) {
+    const publicId = `${CLOUDINARY.FOLDER.SELLERS}/${sellerId}/logo`;
+    await this.fileUploadService.safeDeleteFile(publicId);
+
+    // Remove logo URL from seller profile
+    await this.prisma.seller.update({
+      where: { id: sellerId },
+      data: { logoUrl: null },
+    });
+  }
+
+  async uploadVerificationDocument(
+    file: Express.Multer.File,
+    sellerId: string,
+    documentType: 'business' | 'identity' | 'address'
+  ) {
+    const publicId = `${CLOUDINARY.FOLDER.SELLERS}/${sellerId}/verification/${documentType}`;
+    const result = await this.fileUploadService.safeUploadFile(file, publicId);
+
+    // Update seller profile with document URL
+    const updateData = {
+      [`${documentType}DocumentUrl`]: result.secure_url,
+    };
+
+    await this.prisma.seller.update({
+      where: { id: sellerId },
+      data: updateData,
+    });
+
+    return result;
+  }
+
+  async deleteVerificationDocument(
+    sellerId: string,
+    documentType: 'business' | 'identity' | 'address'
+  ) {
+    const publicId = `${CLOUDINARY.FOLDER.SELLERS}/${sellerId}/verification/${documentType}`;
+    await this.fileUploadService.safeDeleteFile(publicId);
+
+    // Remove document URL from seller profile
+    const updateData = {
+      [`${documentType}DocumentUrl`]: null,
+    };
+
+    await this.prisma.seller.update({
+      where: { id: sellerId },
+      data: updateData,
+    });
+  }
+
+  private async deleteVerificationDocuments(sellerId: string) {
+    const documentTypes = ['business', 'identity', 'address'] as const;
+    for (const docType of documentTypes) {
+      await this.deleteVerificationDocument(sellerId, docType);
+    }
   }
 }
