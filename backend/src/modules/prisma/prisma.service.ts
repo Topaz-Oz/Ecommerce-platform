@@ -29,10 +29,10 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    await this.$connect();
-    this.logger.log('✅ Prisma connected');
+    // 1. 🚀 ĐĂNG KÝ EVENT VÀ MIDDLEWARE TRƯỚC
+    this.logger.log('Initializing Prisma...');
 
-    // 🧠 Event logging an toàn type
+    // 🧠 Event logging
     (this as any).$on('query', (event: Prisma.QueryEvent) => {
       if ('query' in event) {
         this.logger.debug(`Query: ${event.query}`);
@@ -50,6 +50,14 @@ export class PrismaService
 
     // ✅ Soft Delete Middleware
     this.registerSoftDeleteMiddleware();
+
+    // 2. 🚀 KẾT NỐI SAU KHI ĐÃ SETUP XONG
+    try {
+      await this.$connect();
+      this.logger.log('✅ Prisma connected');
+    } catch (error) {
+      this.logger.error('❌ Prisma failed to connect', error);
+    }
   }
 
   async onModuleDestroy() {
@@ -62,20 +70,30 @@ export class PrismaService
 
     if (typeof (self as any).$use === 'function') {
       (self as any).$use(async (params: any, next: any) => {
+        // (Đây là logic giả định cho "soft delete",
+        //  bạn cần đảm bảo model có trường 'active: Boolean')
+
         if (params.action === 'delete') {
+          // Chuyển 'delete' thành 'update'
           params.action = 'update';
           params.args['data'] = { active: false };
         }
 
         if (params.action === 'deleteMany') {
+          // Chuyển 'deleteMany' thành 'updateMany'
           params.action = 'updateMany';
-          params.args['data'] = { ...(params.args.data || {}), active: false };
+          if (params.args.data) {
+            params.args.data['active'] = false;
+          } else {
+            params.args['data'] = { active: false };
+          }
         }
 
         return next(params);
       });
       this.logger.log('🧩 Soft delete middleware enabled');
     } else {
+      // (Cảnh báo này sẽ không còn xuất hiện nữa)
       this.logger.warn(
         '⚠️ Prisma middleware ($use) is not available on this version.',
       );
@@ -88,6 +106,7 @@ export class PrismaService
     pickupLocation: { latitude: number; longitude: number },
     deliveryRange: number = 5.0,
   ) {
+    // TODO: Thêm logic tính toán khoảng cách
     return this.shipper.findMany({
       where: {
         logisticsPartnerId,
