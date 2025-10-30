@@ -1,17 +1,23 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
+import {
+  Controller,
+  Get,
+  Post,
   Put,
-  Delete, 
-  Body, 
-  Param, 
+  Delete,
+  Body,
+  Param,
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  ParseFilePipe
+  ParseFilePipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { EnterpriseService } from './enterprise.service';
 import { CreateEnterpriseDto, UpdateEnterpriseDto } from './dto/enterprise.dto';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
@@ -27,14 +33,20 @@ export class EnterpriseController {
   constructor(private readonly enterpriseService: EnterpriseService) {}
 
   @ApiOperation({ summary: 'Create a new enterprise account' })
-  @ApiResponse({ status: 201, description: 'Enterprise account has been created.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Enterprise account has been created.',
+  })
   @Post()
   create(@Body() createEnterpriseDto: CreateEnterpriseDto) {
     return this.enterpriseService.create(createEnterpriseDto);
   }
 
   @ApiOperation({ summary: 'Update enterprise profile' })
-  @ApiResponse({ status: 200, description: 'Enterprise profile has been updated.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Enterprise profile has been updated.',
+  })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ENTERPRISE, Role.ADMIN)
   @ApiBearerAuth()
@@ -73,7 +85,10 @@ export class EnterpriseController {
   @Roles(Role.ENTERPRISE)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(
+    FileInterceptor('file'),
+    new FileUploadInterceptor({ required: true }), // 👈 SỬA Ở ĐÂY
+  )
   uploadLogo(
     @Param('id') id: string,
     @UploadedFile(new ParseFilePipe())
@@ -87,7 +102,10 @@ export class EnterpriseController {
   @Roles(Role.ENTERPRISE)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(
+    FileInterceptor('file'),
+    new FileUploadInterceptor({ required: true }), // 👈 SỬA Ở ĐÂY
+  )
   updateLogo(
     @Param('id') id: string,
     @UploadedFile(new ParseFilePipe())
@@ -109,7 +127,10 @@ export class EnterpriseController {
   @Roles(Role.ENTERPRISE)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(
+    FileInterceptor('file'),
+    new FileUploadInterceptor({ required: true }), // 👈 SỬA Ở ĐÂY
+  )
   uploadDocument(
     @Param('id') id: string,
     @Param('type') type: 'business' | 'brand' | 'tax',

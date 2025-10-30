@@ -5,7 +5,7 @@ import { CLOUDINARY } from './cloudinary.constants';
 import { ConfigService } from '@nestjs/config';
 
 export const CloudinaryProvider: Provider = {
-  provide: CLOUDINARY,
+  provide: CLOUDINARY.PROVIDER_TOKEN,
   inject: [ConfigService], // 👈 1. Yêu cầu ConfigService
   useFactory: (configService: ConfigService) => {
     // 2. Chỉ khi ConfigService sẵn sàng, nó mới chạy hàm này

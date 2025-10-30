@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@modules/prisma/prisma.service';
 import { Role } from '@prisma/client';
 import { FileUploadService } from '../../common/services/file-upload.service';
@@ -184,22 +184,36 @@ export class EnterpriseService {
   }
 
   async delete(id: string) {
-    const enterprise = await this.prisma.enterprise.findUnique({
-      where: { id },
-    });
+    const enterprise = await this.prisma.enterprise.findUnique({
+      where: { id },
+      select: { userId: true }, // 👈 Chỉ cần lấy userId
+    });
 
-    if (!enterprise) {
-      throw new NotFoundException(`Enterprise with ID ${id} not found`);
-    }
+    if (!enterprise) {
+      throw new NotFoundException(`Enterprise with ID ${id} not found`);
+    }
 
-    // Delete all associated files first
-    await this.deleteAllDocuments(id);
+    // 1. Xóa tất cả file trên Cloudinary
+    await this.deleteAllDocuments(id);
 
-    // Then delete the enterprise record
-    await this.prisma.enterprise.delete({
-      where: { id },
-    });
+    // 2. Dùng transaction để xóa Enterprise VÀ User
+    try {
+      await this.prisma.$transaction([
+        // 2a. Xóa Enterprise
+        this.prisma.enterprise.delete({
+          where: { id },
+        }),
+        // 2b. Xóa User liên quan
+        this.prisma.user.delete({
+          where: { id: enterprise.userId },
+        }),
+      ]);
+    } catch (error) {
+      // Xử lý lỗi (ví dụ: product vẫn còn liên kết)
+      console.error('Error deleting enterprise and user:', error);
+      throw new InternalServerErrorException('Could not delete enterprise');
+    }
 
-    return { message: 'Enterprise deleted successfully' };
-  }
+    return { message: 'Enterprise and associated user deleted successfully' };
+  }
 }

@@ -1,4 +1,3 @@
-// src/cloudinary/cloudinary.service.ts
 import { Injectable } from '@nestjs/common';
 import {
   UploadApiErrorResponse,
@@ -11,18 +10,15 @@ import * as streamifier from 'streamifier';
 export class CloudinaryService {
   /**
    * 1. HÀM CHO API (Upload từ Buffer)
+   * 🚀 ĐÃ SỬA: Chỉ nhận file và options
    */
   async uploadFile(
     file: Express.Multer.File,
-    folder: string,
-    options: any = {}, // 👈 Đã sửa
+    options: any = {}, // 👈 Sửa: Chỉ nhận 1 options object
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: folder,
-          ...options, // 👈 Đã gộp options
-        },
+        options, // 👈 Sửa: Truyền thẳng options (sẽ chứa public_id, folder, v.v.)
         (error, result) => {
           if (error) return reject(error);
           resolve(result);
@@ -37,12 +33,11 @@ export class CloudinaryService {
    */
   async uploadFromPath(
     path: string, // Có thể là local path hoặc URL
-    folder: string,
+    options: any = {}, // 👈 Sửa: Nhận options (để nhất quán)
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     try {
-      return await cloudinary.uploader.upload(path, {
-        folder: folder,
-      });
+      // 👈 Sửa: Truyền options (ví dụ: { folder: '...' })
+      return await cloudinary.uploader.upload(path, options);
     } catch (error) {
       console.error('Lỗi upload từ path:', error);
       throw error;
@@ -57,7 +52,7 @@ export class CloudinaryService {
   }
 
   /**
-   * 4. HÀM HELPER (BỊ THIẾU)
+   * 4. HÀM HELPER
    * Trích xuất public_id để xóa file
    */
   getPublicIdFromUrl(imageUrl: string): string | null {

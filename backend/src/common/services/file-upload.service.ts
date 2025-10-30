@@ -7,14 +7,24 @@ export class FileUploadService {
 
   /**
    * Safely uploads a file to Cloudinary with error handling
+   * 🚀 ĐÃ SỬA: Xây dựng options object
    */
   async safeUploadFile(
     file: Express.Multer.File,
     publicId: string,
-    options: any = {}
+    options: any = {},
   ) {
     try {
-      return await this.cloudinaryService.uploadFile(file, publicId, options);
+      // 👈 Sửa: Gộp publicId và các options khác
+      const uploadOptions = {
+        ...options,
+        public_id: publicId,
+        overwrite: true, // 👈 Luôn ghi đè
+        // (folder sẽ nằm trong 'options' nếu có)
+      };
+      
+      // 👈 Sửa: Gọi hàm với 2 tham số
+      return await this.cloudinaryService.uploadFile(file, uploadOptions);
     } catch (error) {
       this.handleUploadError(error);
     }
@@ -22,21 +32,16 @@ export class FileUploadService {
 
   /**
    * Safely replaces a file in Cloudinary with error handling
+   * 🚀 ĐÃ SỬA:
    */
   async safeReplaceFile(
     file: Express.Multer.File,
     publicId: string,
-    options: any = {}
+    options: any = {},
   ) {
-    try {
-      // Delete the old file first
-      await this.safeDeleteFile(publicId);
-      
-      // Upload the new file
-      return await this.cloudinaryService.uploadFile(file, publicId, options);
-    } catch (error) {
-      this.handleUploadError(error);
-    }
+    // 👈 Sửa: Vì safeUploadFile đã có 'overwrite: true',
+    // chúng ta không cần xóa file cũ trước.
+    return this.safeUploadFile(file, publicId, options);
   }
 
   /**
@@ -46,8 +51,8 @@ export class FileUploadService {
     try {
       return await this.cloudinaryService.deleteFile(publicId);
     } catch (error) {
+      // 404 là chấp nhận được (file không tồn tại)
       if (error.http_code !== 404) {
-        // Only throw if it's not a "not found" error
         this.handleUploadError(error);
       }
     }
@@ -59,7 +64,7 @@ export class FileUploadService {
   private handleUploadError(error: any) {
     console.error('File operation error:', error);
     throw new InternalServerErrorException(
-      'An error occurred during the file operation'
+      'An error occurred during the file operation',
     );
   }
 }

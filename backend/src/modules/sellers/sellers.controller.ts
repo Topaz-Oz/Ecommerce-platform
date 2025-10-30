@@ -12,8 +12,15 @@ import {
   UseInterceptors,
   UploadedFile,
   ParseFilePipe,
+  ForbiddenException, // 👈 1. Thêm ForbiddenException
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiConsumes } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { SellersService } from './sellers.service';
 import { CreateSellerDto, UpdateSellerDto } from './dto/sellers.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -54,15 +61,17 @@ export class SellersController {
   @ApiOperation({ summary: 'Update seller profile' })
   @ApiResponse({ status: 200, description: 'Seller profile has been updated.' })
   @Patch(':id')
-  update(
+  async update( // 👈 2. Thêm 'async'
     @Param('id') id: string,
     @Body() updateSellerDto: UpdateSellerDto,
     @Request() req,
   ) {
-    // Check if the user is the seller or an admin
-    const seller = this.sellersService.findOne(id);
-    if (req.user.role !== Role.ADMIN && seller['userId'] !== req.user.id) {
-      throw new Error('Unauthorized');
+    // 3. Thêm 'await'
+    const seller = await this.sellersService.findOne(id); 
+
+    // 4. Kiểm tra logic (dùng seller.userId)
+    if (req.user.role !== Role.ADMIN && seller.userId !== req.user.id) {
+      throw new ForbiddenException('Unauthorized');
     }
     return this.sellersService.update(id, updateSellerDto);
   }
@@ -70,36 +79,43 @@ export class SellersController {
   @ApiOperation({ summary: 'Verify seller (Admin only)' })
   @ApiResponse({ status: 200, description: 'Seller verification status updated.' })
   @Patch(':id/verify')
+  @Roles(Role.ADMIN) // 👈 Thêm Guard cho an toàn
+  @UseGuards(RolesGuard)
   verifyStatus(
     @Param('id') id: string,
     @Body('verified') verified: boolean,
     @Request() req,
   ) {
-    if (req.user.role !== Role.ADMIN) {
-      throw new Error('Unauthorized - Admin only');
-    }
+    // (Kiểm tra role bằng Guard tốt hơn)
+    // if (req.user.role !== Role.ADMIN) {
+    //   throw new Error('Unauthorized - Admin only');
+    // }
     return this.sellersService.updateVerificationStatus(id, verified);
   }
 
   @ApiOperation({ summary: 'Delete seller profile' })
   @ApiResponse({ status: 200, description: 'Seller profile has been deleted.' })
   @Delete(':id')
-  remove(@Param('id') id: string, @Request() req) {
-    // Check if the user is the seller or an admin
-    const seller = this.sellersService.findOne(id);
-    if (req.user.role !== Role.ADMIN && seller['userId'] !== req.user.id) {
-      throw new Error('Unauthorized');
+  async remove(@Param('id') id: string, @Request() req) { // 👈 2. Thêm 'async'
+    // 3. Thêm 'await'
+    const seller = await this.sellersService.findOne(id);
+    
+    // 4. Kiểm tra logic (dùng seller.userId)
+    if (req.user.role !== Role.ADMIN && seller.userId !== req.user.id) {
+      throw new ForbiddenException('Unauthorized');
     }
     return this.sellersService.delete(id);
   }
 
   // File Upload Endpoints
+  // (Phần này bạn đã sửa đúng - dùng 'new FileUploadInterceptor')
+  
   @Post(':id/logo')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.SELLER)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(FileInterceptor('file'), new FileUploadInterceptor({ required: true }))
   uploadLogo(
     @Param('id') id: string,
     @UploadedFile(new ParseFilePipe())
@@ -113,7 +129,7 @@ export class SellersController {
   @Roles(Role.SELLER)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(FileInterceptor('file'), new FileUploadInterceptor({ required: true }))
   updateLogo(
     @Param('id') id: string,
     @UploadedFile(new ParseFilePipe())
@@ -135,7 +151,7 @@ export class SellersController {
   @Roles(Role.SELLER)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'), FileUploadInterceptor)
+  @UseInterceptors(FileInterceptor('file'), new FileUploadInterceptor({ required: true }))
   uploadDocument(
     @Param('id') id: string,
     @Param('type') type: 'business' | 'identity' | 'address',

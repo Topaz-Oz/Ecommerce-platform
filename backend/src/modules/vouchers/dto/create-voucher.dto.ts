@@ -4,7 +4,7 @@ import {
   IsString,
   IsNotEmpty,
   IsEnum,
-  IsFloat,
+  IsNumber,
   Min,
   IsOptional,
   IsDateString,
@@ -33,7 +33,7 @@ export class CreateVoucherDto {
   discountType: DiscountType;
 
   @ApiProperty({ description: 'Giá trị (VND hoặc %)', example: 10 })
-  @IsFloat()
+  @IsNumber()
   @Min(0)
   discountValue: number;
 
@@ -41,13 +41,13 @@ export class CreateVoucherDto {
     description: 'Giảm tối đa (cho PERCENTAGE)',
     example: 50000,
   })
-  @IsFloat()
+  @IsNumber()
   @Min(0)
   @IsOptional()
   maxDiscountValue?: number;
 
   @ApiPropertyOptional({ description: 'Đơn tối thiểu', example: 300000 })
-  @IsFloat()
+  @IsNumber()
   @Min(0)
   @IsOptional()
   minOrderValue?: number;

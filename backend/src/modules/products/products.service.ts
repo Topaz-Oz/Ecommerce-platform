@@ -185,8 +185,8 @@ export class ProductsService {
     }
 
     const uploadedImages = await Promise.all(
-      files.map((file) => this.cloudinary.uploadFile(file, 'products', {})),
-    );
+  files.map((file) => this.cloudinary.uploadFile(file, { folder: 'products' })), // 👈 2 tham số
+);
 
     const imageUrls = uploadedImages.map((result) => result.secure_url);
 
